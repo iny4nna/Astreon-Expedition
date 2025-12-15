@@ -1,80 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Astreon Expedition</title>
-  <style>
-    body {
-      background: #05051e;
-      color: white;
-      font-family: Arial;
-      text-align: center;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin: 10px;
-      cursor: pointer;
-    }
-    input {
-      padding: 10px;
-      font-size: 18px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Astreon Expedition - Mercury</title>
+
+<style>
+body {
+  background: #05051e;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+}
+
+button {
+  padding: 14px 28px;
+  font-size: 18px;
+  margin: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+input {
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+  text-align: center;
+}
+
+.hidden { display: none; }
+
+img {
+  width: 220px;
+  margin: 20px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>🚀 Astreon Expedition</h1>
-
+<!-- MENU -->
 <div id="menu">
+  <h1>🚀 Astreon Expedition</h1>
   <button onclick="startGame()">Start</button>
 </div>
 
-<div id="name" style="display:none;">
-  <p>Enter your name</p>
-  <input id="playerName" placeholder="Your name">
+<!-- NAME -->
+<div id="name" class="hidden">
+  <h2>Enter your name</h2>
+  <input id="playerName" placeholder="Explorer name">
   <br><br>
-  <button onclick="goToQuestion()">Continue</button>
+  <button onclick="startMercury()">Continue</button>
 </div>
 
-<div id="game" style="display:none;">
-  <p id="welcome"></p>
-  <h2 id="question"></h2>
-  <button onclick="answer('A')">A. Earth</button><br>
-  <button onclick="answer('B')">B. Mercury</button><br>
-  <button onclick="answer('C')">C. Mars</button>
+<!-- GAME -->
+<div id="game" class="hidden">
+  <h3 id="welcome"></h3>
+  <h2>🪐 Planet Mercury</h2>
+  <img src="assets/planet1.png" alt="Mercury">
+
+  <h3 id="question"></h3>
+  <div id="choices"></div>
   <p id="result"></p>
 </div>
 
 <script>
-  function startGame() {
-    document.getElementById("menu").style.display = "none";
-    document.getElementById("name").style.display = "block";
+/* ---------- MERCURY QUESTIONS (A B C) ---------- */
+let currentQuestion = 0;
+
+const mercuryQuestions = [
+  {
+    q: "What is Mercury?",
+    A: "A. A star",
+    B: "B. A planet",
+    C: "C. A moon",
+    answer: "B"
+  },
+  {
+    q: "Mercury is the ____ planet from the Sun.",
+    A: "A. closest",
+    B: "B. second",
+    C: "C. farthest",
+    answer: "A"
+  },
+  {
+    q: "Mercury has a very ____ atmosphere.",
+    A: "A. thick",
+    B: "B. thin",
+    C: "C. no",
+    answer: "B"
   }
+];
 
-  function goToQuestion() {
-    let name = document.getElementById("playerName").value;
-    if (name === "") return;
+/* ---------- MENU ---------- */
+function startGame() {
+  menu.classList.add("hidden");
+  name.classList.remove("hidden");
+}
 
-    document.getElementById("name").style.display = "none";
-    document.getElementById("game").style.display = "block";
+/* ---------- START MERCURY ---------- */
+function startMercury() {
+  const name = playerName.value;
+  if (!name) return;
 
-    document.getElementById("welcome").innerText = "Explorer: " + name;
-    document.getElementById("question").innerText =
-      "What is the closest planet to the Sun?";
-  }
+  welcome.innerText = "Explorer: " + name;
 
-  function answer(choice) {
-    let result = document.getElementById("result");
-    if (choice === "B") {
-      result.innerText = "Correct! Ship part collected 🚀";
+  name.classList.add("hidden");
+  game.classList.remove("hidden");
+
+  loadQuestion();
+}
+
+/* ---------- LOAD QUESTION ---------- */
+function loadQuestion() {
+  const q = mercuryQuestions[currentQuestion];
+  question.innerText = q.q;
+  choices.innerHTML = "";
+  result.innerText = "";
+
+  ["A", "B", "C"].forEach(letter => {
+    const btn = document.createElement("button");
+    btn.innerText = q[letter];
+    btn.onclick = () => checkAnswer(letter);
+    choices.appendChild(btn);
+  });
+}
+
+/* ---------- CHECK ANSWER ---------- */
+function checkAnswer(choice) {
+  const q = mercuryQuestions[currentQuestion];
+
+  if (choice === q.answer) {
+    result.innerText = "✅ Correct!";
+    currentQuestion++;
+
+    if (currentQuestion < mercuryQuestions.length) {
+      setTimeout(loadQuestion, 1000);
     } else {
-      result.innerText = "Wrong answer ❌";
+      result.innerText = "🚀 Mercury cleared! Mission success!";
+      choices.innerHTML = "";
     }
+  } else {
+    result.innerText = "❌ Wrong answer. Try again!";
   }
+}
 </script>
 
 </body>
 </html>
-
