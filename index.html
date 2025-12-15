@@ -2,148 +2,262 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Astreon Expedition - Mercury</title>
+<title>Astreon Expedition</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-body {
-  background: #05051e;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 0;
+body{
+  background:#05051e;
+  color:white;
+  font-family:'Poppins',sans-serif;
+  text-align:center;
+  margin:0;
+  padding:20px;
 }
-
-button {
-  padding: 14px 28px;
-  font-size: 18px;
-  margin: 10px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
+h1,h2,h3{font-family:'Orbitron',sans-serif;}
+button{
+  padding:14px 26px;
+  font-size:16px;
+  margin:6px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
 }
-
-input {
-  padding: 12px;
-  font-size: 18px;
-  border-radius: 8px;
-  border: none;
-  text-align: center;
-}
-
-.hidden { display: none; }
-
-img {
-  width: 220px;
-  margin: 20px;
-}
+button:disabled{background:#444;color:#aaa;}
+.hidden{display:none;}
+#box{max-width:900px;margin:auto;}
+input{padding:10px;font-size:16px;border-radius:10px;border:none;}
+#result{font-size:20px;margin-top:10px;}
 </style>
 </head>
 
 <body>
+<div id="box">
 
 <!-- MENU -->
 <div id="menu">
   <h1>🚀 Astreon Expedition</h1>
-  <button onclick="startGame()">Start</button>
+  <button id="startBtn">Start Mission</button>
 </div>
 
 <!-- NAME -->
 <div id="name" class="hidden">
-  <h2>Enter your name</h2>
-  <input id="playerName" placeholder="Explorer name">
+  <h2>🧑‍🚀 Explorer Name</h2>
+  <input id="playerName" placeholder="Enter your name">
   <br><br>
-  <button onclick="startMercury()">Continue</button>
+  <button id="continueBtn">Continue</button>
+</div>
+
+<!-- MAP -->
+<div id="map" class="hidden">
+  <h2>🗺️ Space Map</h2>
+  <p>
+    Score: <span id="scoreText">0</span> |
+    Parts: <span id="partsText">0</span>
+  </p>
+
+  <button id="sunBtn">☀️ Sun</button><br>
+  <button id="mercuryBtn" disabled>☿️ Mercury 🔒</button>
+  <button id="venusBtn" disabled>♀️ Venus 🔒</button>
+  <button id="earthBtn" disabled>🌍 Earth 🔒</button>
+  <button id="marsBtn" disabled>🔴 Mars 🔒</button>
+  <button id="jupiterBtn" disabled>🟤 Jupiter 🔒</button>
+  <button id="saturnBtn" disabled>🪐 Saturn 🔒</button>
+  <button id="uranusBtn" disabled>🌀 Uranus 🔒</button>
+  <button id="neptuneBtn" disabled>🔵 Neptune 🔒</button>
 </div>
 
 <!-- GAME -->
 <div id="game" class="hidden">
-  <h3 id="welcome"></h3>
-  <h2>🪐 Planet Mercury</h2>
-  <img src="assets/planet1.png" alt="Mercury">
-
+  <h2 id="planet"></h2>
+  <p id="progress"></p>
   <h3 id="question"></h3>
   <div id="choices"></div>
   <p id="result"></p>
 </div>
 
-<script>
-/* ---------- MERCURY QUESTIONS (A B C) ---------- */
-let currentQuestion = 0;
+<!-- END -->
+<div id="end" class="hidden">
+  <h1>🎉 Mission Complete!</h1>
+  <h2 id="endName"></h2>
+  <p>Total Score: <span id="finalScore"></span></p>
+  <p>Spaceship Parts: <span id="finalParts"></span></p>
+  <p>🌌 You explored the entire Solar System!</p>
+</div>
 
-const mercuryQuestions = [
-  {
-    q: "What is Mercury?",
-    A: "A. A star",
-    B: "B. A planet",
-    C: "C. A moon",
-    answer: "B"
-  },
-  {
-    q: "Mercury is the ____ planet from the Sun.",
-    A: "A. closest",
-    B: "B. second",
-    C: "C. farthest",
-    answer: "A"
-  },
-  {
-    q: "Mercury has a very ____ atmosphere.",
-    A: "A. thick",
-    B: "B. thin",
-    C: "C. no",
-    answer: "B"
-  }
+</div>
+
+<script>
+/* ---------- ELEMENTS ---------- */
+const menu=document.getElementById("menu");
+const nameBox=document.getElementById("name");
+const map=document.getElementById("map");
+const game=document.getElementById("game");
+const end=document.getElementById("end");
+
+const scoreText=document.getElementById("scoreText");
+const partsText=document.getElementById("partsText");
+const planet=document.getElementById("planet");
+const question=document.getElementById("question");
+const choices=document.getElementById("choices");
+const result=document.getElementById("result");
+const progress=document.getElementById("progress");
+
+/* ---------- STATE ---------- */
+let score=0, parts=0, currentQuestion=0;
+let currentSet=[], currentPlanetIndex=0;
+let playerName="";
+
+/* ---------- PLANET ORDER ---------- */
+const planetOrder=[
+  "sunBtn","mercuryBtn","venusBtn","earthBtn",
+  "marsBtn","jupiterBtn","saturnBtn","uranusBtn","neptuneBtn"
 ];
 
-/* ---------- MENU ---------- */
-function startGame() {
+/* ---------- QUESTIONS ---------- */
+const sun=[
+{q:"The Sun is a ____.",A:"A. Planet",B:"B. Star",C:"C. Moon",answer:"B"},
+{q:"The Sun produces energy by ____.",A:"A. Fire",B:"B. Fusion",C:"C. Electricity",answer:"B"},
+{q:"The Sun is made mostly of ____.",A:"A. Hydrogen",B:"B. Rock",C:"C. Iron",answer:"A"},
+{q:"Without the Sun, Earth would be ____.",A:"A. Frozen",B:"B. Hot",C:"C. Same",answer:"A"},
+{q:"The Sun is at the ____ of the solar system.",A:"A. Center",B:"B. Edge",C:"C. Bottom",answer:"A"}
+];
+
+const mercury=[
+{q:"Mercury is a ____.",A:"A. Planet",B:"B. Star",C:"C. Moon",answer:"A"},
+{q:"Closest planet to the Sun?",A:"A. Mercury",B:"B. Venus",C:"C. Earth",answer:"A"},
+{q:"Mercury size?",A:"A. Largest",B:"B. Smallest",C:"C. Medium",answer:"B"},
+{q:"Mercury has moons?",A:"A. Yes",B:"B. One",C:"C. None",answer:"C"},
+{q:"Mercury atmosphere is ____.",A:"A. Thick",B:"B. Thin",C:"C. Normal",answer:"B"}
+];
+
+const venus=[
+{q:"Venus is the ____ planet.",A:"A. Hottest",B:"B. Coldest",C:"C. Smallest",answer:"A"},
+{q:"Venus position from Sun?",A:"A. 1st",B:"B. 2nd",C:"C. 3rd",answer:"B"},
+{q:"Venus atmosphere is ____.",A:"A. Thick",B:"B. Thin",C:"C. None",answer:"A"},
+{q:"Venus rotates ____.",A:"A. Fast",B:"B. Normal",C:"C. Slowly",answer:"C"},
+{q:"Venus surface temperature is ____.",A:"A. Cool",B:"B. Warm",C:"C. Very hot",answer:"C"}
+];
+
+const earth=[
+{q:"Earth is the ____ planet from the Sun.",A:"A. 2nd",B:"B. 3rd",C:"C. 4th",answer:"B"},
+{q:"Earth supports ____.",A:"A. Life",B:"B. Fire",C:"C. Metal",answer:"A"},
+{q:"Earth water coverage is about ____.",A:"A. 30%",B:"B. 50%",C:"C. 70%",answer:"C"},
+{q:"Earth has ____ moon.",A:"A. 1",B:"B. 2",C:"C. 3",answer:"A"},
+{q:"Important gas for life?",A:"A. Oxygen",B:"B. Helium",C:"C. Hydrogen",answer:"A"}
+];
+
+const mars=[
+{q:"Mars is called the ____ planet.",A:"A. Red",B:"B. Blue",C:"C. Green",answer:"A"},
+{q:"Mars position?",A:"A. 3rd",B:"B. 4th",C:"C. 5th",answer:"B"},
+{q:"Mars has ____ moons.",A:"A. 1",B:"B. 2",C:"C. 4",answer:"B"},
+{q:"Largest volcano on Mars?",A:"A. Everest",B:"B. Olympus Mons",C:"C. Fuji",answer:"B"},
+{q:"Mars studied for ____.",A:"A. Water",B:"B. Gold",C:"C. Fire",answer:"A"}
+];
+
+const jupiter=[
+{q:"Largest planet?",A:"A. Jupiter",B:"B. Saturn",C:"C. Neptune",answer:"A"},
+{q:"Jupiter is a ____ giant.",A:"A. Gas",B:"B. Ice",C:"C. Rock",answer:"A"},
+{q:"Great Red Spot is a ____.",A:"A. Storm",B:"B. Ocean",C:"C. Mountain",answer:"A"},
+{q:"Jupiter has ____ moons.",A:"A. Few",B:"B. None",C:"C. Many",answer:"C"},
+{q:"Jupiter order?",A:"A. 4th",B:"B. 5th",C:"C. 6th",answer:"B"}
+];
+
+const saturn=[
+{q:"Saturn is famous for its ____.",A:"A. Rings",B:"B. Ice",C:"C. Fire",answer:"A"},
+{q:"Saturn type?",A:"A. Gas giant",B:"B. Rock",C:"C. Ice",answer:"A"},
+{q:"Saturn order?",A:"A. 5th",B:"B. 6th",C:"C. 7th",answer:"B"},
+{q:"Saturn rings made of ____.",A:"A. Rock & Ice",B:"B. Fire",C:"C. Gas",answer:"A"},
+{q:"Saturn density is ____.",A:"A. Low",B:"B. Medium",C:"C. High",answer:"A"}
+];
+
+const uranus=[
+{q:"Uranus color?",A:"A. Blue-green",B:"B. Red",C:"C. Yellow",answer:"A"},
+{q:"Uranus rotates ____.",A:"A. Sideways",B:"B. Normal",C:"C. Fast",answer:"A"},
+{q:"Uranus is an ____ giant.",A:"A. Ice",B:"B. Gas",C:"C. Rock",answer:"A"},
+{q:"Uranus order?",A:"A. 6th",B:"B. 7th",C:"C. 8th",answer:"B"},
+{q:"Uranus temperature is ____.",A:"A. Very cold",B:"B. Warm",C:"C. Hot",answer:"A"}
+];
+
+const neptune=[
+{q:"Farthest planet from Sun?",A:"A. Neptune",B:"B. Uranus",C:"C. Saturn",answer:"A"},
+{q:"Neptune color?",A:"A. Blue",B:"B. Red",C:"C. Green",answer:"A"},
+{q:"Neptune winds are ____.",A:"A. Strong",B:"B. Weak",C:"C. None",answer:"A"},
+{q:"Neptune is an ____ giant.",A:"A. Ice",B:"B. Gas",C:"C. Rock",answer:"A"},
+{q:"Neptune order?",A:"A. 7th",B:"B. 8th",C:"C. 9th",answer:"B"}
+];
+
+const planetData=[sun,mercury,venus,earth,mars,jupiter,saturn,uranus,neptune];
+const planetEmoji=["☀️ Sun","☿️ Mercury","♀️ Venus","🌍 Earth","🔴 Mars","🟤 Jupiter","🪐 Saturn","🌀 Uranus","🔵 Neptune"];
+
+/* ---------- FLOW ---------- */
+document.getElementById("startBtn").onclick=()=>{
   menu.classList.add("hidden");
-  name.classList.remove("hidden");
-}
+  nameBox.classList.remove("hidden");
+};
 
-/* ---------- START MERCURY ---------- */
-function startMercury() {
-  const name = playerName.value;
-  if (!name) return;
+document.getElementById("continueBtn").onclick=()=>{
+  playerName=document.getElementById("playerName").value||"Explorer";
+  nameBox.classList.add("hidden");
+  map.classList.remove("hidden");
+};
 
-  welcome.innerText = "Explorer: " + name;
+planetOrder.forEach((id,i)=>{
+  document.getElementById(id).onclick=()=>{
+    currentPlanetIndex=i;
+    currentSet=planetData[i];
+    currentQuestion=0;
+    planet.innerText=planetEmoji[i];
+    map.classList.add("hidden");
+    game.classList.remove("hidden");
+    loadQuestion();
+  };
+});
 
-  name.classList.add("hidden");
-  game.classList.remove("hidden");
-
-  loadQuestion();
-}
-
-/* ---------- LOAD QUESTION ---------- */
-function loadQuestion() {
-  const q = mercuryQuestions[currentQuestion];
-  question.innerText = q.q;
-  choices.innerHTML = "";
-  result.innerText = "";
-
-  ["A", "B", "C"].forEach(letter => {
-    const btn = document.createElement("button");
-    btn.innerText = q[letter];
-    btn.onclick = () => checkAnswer(letter);
+function loadQuestion(){
+  result.innerText="";
+  const q=currentSet[currentQuestion];
+  question.innerText=q.q;
+  progress.innerText=`${currentQuestion+1} / ${currentSet.length}`;
+  choices.innerHTML="";
+  ["A","B","C"].forEach(c=>{
+    const btn=document.createElement("button");
+    btn.innerText=q[c];
+    btn.onclick=()=>check(c);
     choices.appendChild(btn);
   });
 }
 
-/* ---------- CHECK ANSWER ---------- */
-function checkAnswer(choice) {
-  const q = mercuryQuestions[currentQuestion];
+function check(c){
+  if(c===currentSet[currentQuestion].answer){
+    result.innerText="✅ Correct!";
+    score+=10; parts++;
+    scoreText.innerText=score;
+    partsText.innerText=parts;
 
-  if (choice === q.answer) {
-    result.innerText = "✅ Correct!";
-    currentQuestion++;
+    setTimeout(()=>{
+      currentQuestion++;
+      if(currentQuestion<currentSet.length) loadQuestion();
+      else finishPlanet();
+    },700);
+  }else{
+    result.innerText="❌ Wrong!";
+  }
+}
 
-    if (currentQuestion < mercuryQuestions.length) {
-      setTimeout(loadQuestion, 1000);
-    } else {
-      result.innerText = "🚀 Mercury cleared! Mission success!";
-      choices.innerHTML = "";
-    }
-  } else {
-    result.innerText = "❌ Wrong answer. Try again!";
+function finishPlanet(){
+  game.classList.add("hidden");
+  if(currentPlanetIndex+1<planetOrder.length){
+    const next=document.getElementById(planetOrder[currentPlanetIndex+1]);
+    next.disabled=false;
+    next.innerText=planetEmoji[currentPlanetIndex+1];
+    map.classList.remove("hidden");
+  }else{
+    end.classList.remove("hidden");
+    document.getElementById("endName").innerText=`Great job, ${playerName}!`;
+    document.getElementById("finalScore").innerText=score;
+    document.getElementById("finalParts").innerText=parts;
   }
 }
 </script>
