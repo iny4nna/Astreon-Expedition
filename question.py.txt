@@ -1,0 +1,27 @@
+questions = [
+    {
+        "question": "Which planet is closest to the Sun?",
+        "choices": ["Earth", "Mars", "Mercury", "Venus"],
+        "answer": 2
+    },
+    {
+        "question": "What is the boiling point of water in Celsius?",
+        "choices": ["90°C", "100°C", "80°C", "120°C"],
+        "answer": 1
+    },
+    {
+        "question": "Which gas do plants absorb during photosynthesis?",
+        "choices": ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+        "answer": 2
+    },
+    {
+        "question": "What is the chemical symbol for Oxygen?",
+        "choices": ["Ox", "O", "Og", "O2"],
+        "answer": 1
+    },
+    {
+        "question": "How many continents are there on Earth?",
+        "choices": ["5", "6", "7", "8"],
+        "answer": 2
+    }
+]
