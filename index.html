@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Astreon Expedition</title>
+  <style>
+    body {
+      background: #05051e;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    input {
+      padding: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🚀 Astreon Expedition</h1>
+
+<div id="menu">
+  <button onclick="startGame()">Start</button>
+</div>
+
+<div id="name" style="display:none;">
+  <p>Enter your name</p>
+  <input id="playerName" placeholder="Your name">
+  <br><br>
+  <button onclick="goToQuestion()">Continue</button>
+</div>
+
+<div id="game" style="display:none;">
+  <p id="welcome"></p>
+  <h2 id="question"></h2>
+  <button onclick="answer('A')">A. Earth</button><br>
+  <button onclick="answer('B')">B. Mercury</button><br>
+  <button onclick="answer('C')">C. Mars</button>
+  <p id="result"></p>
+</div>
+
+<script>
+  function startGame() {
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("name").style.display = "block";
+  }
+
+  function goToQuestion() {
+    let name = document.getElementById("playerName").value;
+    if (name === "") return;
+
+    document.getElementById("name").style.display = "none";
+    document.getElementById("game").style.display = "block";
+
+    document.getElementById("welcome").innerText = "Explorer: " + name;
+    document.getElementById("question").innerText =
+      "What is the closest planet to the Sun?";
+  }
+
+  function answer(choice) {
+    let result = document.getElementById("result");
+    if (choice === "B") {
+      result.innerText = "Correct! Ship part collected 🚀";
+    } else {
+      result.innerText = "Wrong answer ❌";
+    }
+  }
+</script>
+
+</body>
+</html>
+
